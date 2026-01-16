@@ -61,7 +61,3 @@ Testing & debugging
 License & authorship
 - This repository does not include an explicit license file; assume "all rights reserved" unless you add a `LICENSE`.
 
-Contact / next steps
-- If you want, I can:
-- - Run a quick code scan to produce a concise wiring diagram.
-- - Update the Makefile to build only the C or C++ variant.
