@@ -1,0 +1,47 @@
+
+/*
+ * Changelog.txt
+ *
+ * Created: 2012-08-26 20:03:45
+ *  Author: Max
+ */ 
+
+ Changelog:
+ 2012-08-26 - I started working on a system for logging in (i.e, changing off the alarm). # button first and then "456". * button will activate the alarm
+ at any time.
+ 2012-11-16 - Added 1ms delay in keypad function to get rid of the bug with wrong keypresses
+
+
+ Buglist:
+ * Sometimes, the display will not respond accordingly to how the sections state are in (alarm etc)
+ * button 1-2-3 doesn't work. Other buttons are very unreliable.
+
+
+
+
+ uint8_t KeyPadNormal = 0xFF;
+uint8_t MyGetPressedKey()
+{ // DDR = 0 PORT = 0 = TRISTATE
+	
+	//KEYPAD_DDR &= ~0X7F; // resulting in x000 0000, all inputs
+	KEYPAD_DDR = 0xA8; //10101000 all cols = outputs, rows = inputs
+	KEYPAD_PORT = 0xFF;
+	int c=0;
+	int r=0;
+	for(r=0;r<4;r++)
+	{
+		KeyPadNormal = KEYPAD_PIN;
+		//If keypadpin in col c and row r is low, then
+		if(KeyPadNormal =! 0xFF)
+		{
+			if(KEYPAD_PIN =! 0xAF) //1010110 0xAC = something in row pressed, or, 10101111 = AF	
+			{
+				lcd_puts("Button pressed\n");
+				_delay_ms(1000);
+			}
+		}		
+		
+	}				
+	
+	return 0xFF;	
+}	

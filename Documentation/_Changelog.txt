@@ -1,0 +1,43 @@
+
+/*
+ * Changelog.txt
+ *
+ * Created: 2012-08-26 20:03:45
+ *  Author: Max
+ */ 
+
+ Changelog:
+ (EasySec v0.6)
+ 2012-12-23 -	* Wrote a wrapper for printing to the lcd screen
+				* Wrote a SETUP Menu
+ 2012-12-22	-	* Lagat buggar med lagg i menysystemerna.
+				* Snyggat till menyer, enklare handhavande och bättre översikt. 
+				* Knapparna svara nu mycket bättre än tidigare
+				* Jobbat med larmsändaren (GSM via nokia 3310) och har än så länge lyckats ta emot och parsa SMS,
+					dock har jag ej lyckats få något ivägskickat ännu.
+				* Fixat bugg där kortslutning på larmslinga ej gav larm eller sabotage.
+				* Skrivit om koden för inloggningsdelen (dock inte 100% avprovad och klar ännu)
+				*
+ (EasySec v0.5)
+ 2012-12-02 -	* Fixat till koden. Fixat med "Flaggor" som states (stateOK | stateALARM) osv.
+				* Har även jobbat en hel del med inloggningsbiten, när man skall kunna larma på osv.
+				* Fixat scrollande text automatiskt när texten är längre än 20 tecken.
+				* Har egentligen gjort om hela jävla koden från grunden. Var en sån jäkla röra förut. 
+				* Jag har skrotat en jävla massa onödig kod/variablar/structs som var helt onödiga.
+				* Jag har börjat försöka samla ihop alla globala variablar till två structs: sSektioner och sComputer.
+					sSektioner säger sig självt, sComputer är hjärnan i det hela.
+				* Fixat en jävla massa småbuggar
+				* Förut kördes huvuddelen av koden från interruptens rutin, det var inge vidare smart gjort. Nu har jag 
+					en mer traditionell main loop, och endast information hämtas från ISRen. Gör att det går jävligt mycket snabbare.
+				* Har lagt till en kod för att slå på larmet också. Tanken är att koden skall kunna programmeras in framöver.
+ (Easysec v0.2)	* Har även lagt till en ny "state", stateCONFIG. Är tänkt för driftsättning och så. Välja bort sektioner, koppla bort
+ 2012-08-26 - I started working on a system for logging in (i.e, changing off the alarm). # button first and then "456". * button will activate the alarm
+ at any cTimer.
+ (Easysec v0.1)
+ 2012-11-16 - Added 1ms delay in keypad function to get rid of the bug with wrong keypresses
+
+
+ Buglist:
+ * 2012-12-02 Återstår att ordna buffer overflow vulns, speciellt där man kan knappa in lösenordet.
+ * SomecTimers, the display will not respond accordingly to how the sections state are in (alarm etc)
+ * button 1-2-3 doesn't work. Other buttons are very unreliable.

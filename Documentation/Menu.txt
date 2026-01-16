@@ -1,0 +1,48 @@
+/*
+ * Menu.txt
+ *
+ * Created: 2012-12-08 16:14:54
+ *  Author: Max
+ */ 
+
+
+ Main Screen: #00#
+ --------------------
+  #01# Everything OK
+   2012-12-08 16:16
+ --------------------
+ --------------------
+   All zones are OK
+   2012-12-08 16:16
+ --------------------
+  System deactivated
+   2012-12-08 16:16
+ --------------------
+   ALARM IS ACTIVE!
+  Alarms:x Sabotage:x
+ --------------------
+ --------------------
+ Menu: (# -> code -> #)
+ #02# Individual zones
+ --------------------
+ #02#->Zone 1 (MK) OK
+    #00# to bypass
+ --------------------
+ --------------------
+ 02->Zone 1 offline
+  #00# to plug it in
+ --------------------
+
+ Menu #03# Date/cTimer
+ --------------------
+  Enter date & cTimer:
+  yyyy-mm-dd hh-mm
+ --------------------
+
+  #99# Programming
+  #01# Individual zones
+ --------------------
+  #99#->#01# Zone 1
+    (enter text)
+ --------------------
+

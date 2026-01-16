@@ -1,0 +1,26 @@
+Förenklad manöverpanel
+
+
+Göra programmet snabbare, snabbare detekteringstider, spara cpu till annat.
+Fellarm, larmrelä osv.
+* Möjlighet att koppla ifrån alltid, koppla till endast vid samtliga sek i drift.
+* Om en sektion ligger i sab mer än 500ms återställs ej felet automatiskt.
+* Vid larm går det aldrig att återställa utan lösen
+* Uttökning med 8 sek till via en undercentral (sektionskort)
+* Skriva till vilken sek som larmar på huvudmenyn
+* Alla sektioner står i sabotage i undermeny #02# vid sab
+* Sab återställer inte automatiskt?
+* Fördröjd återställning av larm och sab efter spänningsbortfall
+* Larmlagringsmöjlighet.
+* Larmlagringsprogrammering via servicekod, ny undermeny.
+* Överfallskod, går direkt till sos men ser ut som att det ej larmar
+* Övervakad larmöverföring. 
+* Vid avvaktiverat larm (dagtid) skall ej larmande sektioner visas på displayen.
+* Akustiska glaskrossar - användaren måste varnas om dessa löst ut dagtid. (Skicka sms!)
+* Spara datum & klockslag på EEPROM varje halvminut - minut (pga norsk reset och andra haverier)
+* Spara loggfiler på EEPROM.
+
+
+Buggar:
+* Kortsluten sektion ger inget fel eller sabotage lar.m
+* text buggar ur vid lösenordsinmatning

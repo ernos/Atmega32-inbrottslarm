@@ -1,0 +1,2 @@
+Göra programmet snabbare, snabbare detekteringstider, spara cpu till annat.
+Fellarm, larmrelä osv.

@@ -1,0 +1,407 @@
+/* Useful to get numbers from any buttons. Ascii conversion. */
+
+
+void CheckKeyPadState()
+{
+
+	return;
+
+	uint8_t KeyPressed = 0xFF;
+	KeyPressed = GetKeyPressed();
+
+	KeyPressed++;
+	_delay_ms(2);
+	if(KeyPressed==12)
+	{
+		letMeLogIn = 1;
+		char PassTemp[5];
+		
+		PassTemp[0] = 0;
+		
+		//lcd_clrscr();
+		//_delay_ms(200);
+		sprintf(Brain.lcdRow1, "Enter Password:");
+		Brain.lcdRow2[0] = '\0';
+		UpdateDisplay(Brain.lcdRow1, Brain.lcdRow2, printDELAY10);
+		_delay_ms(200);
+		if(letMeLogIn==0)
+			return;
+		
+		
+		while(1)
+		{
+			
+			//_delay_ms(20);
+			KeyPressed = 0xFF;
+			KeyPressed = GetKeyPressed();
+			
+			if(KeyPressed!=0xFF)
+			{
+				KeyPressed++;
+				
+				
+				if(KeyPressed==10)
+				{
+					enteredPasswordLengthBuffer = strlen(Brain.lcdRow2);
+					Brain.lcdRow2[enteredPasswordLengthBuffer-1] = '\0';
+					enteredPasswordLength = strlen(PassTemp);
+					PassTemp[enteredPasswordLength-1] = '\0';
+				}
+				else if(KeyPressed == 11)
+				{	/* Could be used for programming mode in future */
+					
+				}
+				else if(KeyPressed == 12)
+				{
+					Brain.lcdRow1[0] = '\0';
+					Brain.lcdRow2[0] = '\0';
+					Brain.enteredPassword[0] = '\0';
+					break;
+				}
+				else
+				sprintf(PassTemp, "%i", KeyPressed);
+
+				sprintf(Brain.enteredPassword, "%s%s", Brain.lcdRow2, PassTemp);
+				sprintf(Brain.lcdRow2, "%s", Brain.enteredPassword);
+				UpdateDisplay(Brain.lcdRow1, Brain.lcdRow2, printDELAY10);
+				
+			}
+			#ifdef DEBUG
+			Brain.state &= ~stateDEACTIVE;
+			Brain.state |= stateOK;
+			Brain.state &= ~stateSABOTAGE;
+			#endif
+			
+			if(strlen(Brain.enteredPassword) > 3)
+			{		//User logged in
+				letMeLogIn = 0;
+				
+				if(strcmp(Brain.enteredPassword, Brain.correctPassword)==0)
+				{
+					
+					Brain.state |= stateLOGIN;
+					Brain.enteredPassword[0]='\0';
+					
+					if((Brain.state & stateDEACTIVE) == stateDEACTIVE)
+					{
+
+						strcpy(Brain.lcdRow1, "Password OK. Trying");
+						strcpy(Brain.lcdRow2, "  to boot system.");
+						UpdateDisplay(Brain.lcdRow1, Brain.lcdRow2, printDELAY2000);
+						Brain.state &= ~stateDEACTIVE;
+						Brain.state |= stateOK;
+						
+						if ((Brain.state & (stateSABOTAGE | stateALARM)) == (stateSABOTAGE | stateALARM))
+						{
+							strcpy(Brain.lcdRow1, "  Alarms are active.");
+							strcpy(Brain.lcdRow2, "Can't activate system");
+							UpdateDisplay(Brain.lcdRow1, Brain.lcdRow2, printDELAY2000);
+						}
+						else if ((Brain.state & stateSABOTAGE) == stateSABOTAGE)
+						{
+							strcpy(Brain.lcdRow1, "Sabotage in system");
+							strcpy(Brain.lcdRow2, "Can not activate.");
+							UpdateDisplay(Brain.lcdRow1, Brain.lcdRow2, printDELAY2000);
+							Brain.state |= stateDEACTIVE;
+							Brain.state &= ~stateOK;
+							Brain.state &= ~stateLOGIN;
+						} else if ((Brain.state & stateALARM) == stateALARM)
+						{
+							strcpy(Brain.lcdRow1, "Alarm is triggering,");
+							strcpy(Brain.lcdRow2, "Can not activate.");
+							UpdateDisplay(Brain.lcdRow1, Brain.lcdRow2, printDELAY2000);
+							Brain.state |= stateDEACTIVE;
+							Brain.state &= ~stateOK;
+							Brain.state &= ~stateLOGIN;
+						}else
+						{
+							Brain.state &= ~stateALARM;
+							Brain.state &= ~stateSABOTAGE;
+							strcpy(Brain.lcdRow1, "Password OK.");
+							strcpy(Brain.lcdRow2, "System starting...");
+							UpdateDisplay(Brain.lcdRow1, Brain.lcdRow2, printDELAY2000);
+						}
+						return;
+					}
+					else if ((Brain.state & stateOK) == stateOK)
+					{
+						Brain.state |= stateDEACTIVE;
+						Brain.state &= ~stateOK;
+						strcpy(Brain.lcdRow1, "Password OK.");
+						strcpy(Brain.lcdRow2, "System deactivated.");
+						UpdateDisplay(Brain.lcdRow1, Brain.lcdRow2, printDELAY2000);
+						return;
+					}
+					break;
+				}
+				else
+				{
+					letMeLogIn = 0;
+					strcpy(Brain.lcdRow1, "Incorrect password.");
+					strcpy(Brain.lcdRow2, "You have 3 tries left.");
+					UpdateDisplay(Brain.lcdRow1, Brain.lcdRow2, printDELAY2000);
+					Brain.enteredPassword[0]='\0';
+					
+					return;
+				}
+			}
+			
+			KeyPressed=0xFF;
+		}
+	}
+}
+
+
+
+char GetCharPressed()
+{
+	char rtn;
+	char r = 0;
+	char c = 0;
+
+	KEYPAD_PORT|= 0X0F; //0000 1111
+
+	r = 0;
+	c = 0;
+	rtn = 0xFF;
+
+	for(c=0;c<3;c++)
+	{
+		KEYPAD_DDR &= ~(0X7F); //0111 1111 Set all DDR to outputs
+		//KEYPAD_DDR = 0xFF;
+		//Toggle colums, to input, one by one.
+		KEYPAD_DDR|=(0X40>>c); //0100 0000
+		_delay_ms(20);
+		for(r=0;r<4;r++)
+		{
+			//If keypadpin in col c and row r is low, then
+			if(!(KEYPAD_PIN & (0X08>>r))) //0000 1000
+			{
+				//return row cTimers 3 + column. example. row=0, col=0;
+				//
+				rtn = (char)(r*3+c);
+				return (char)(r*3+c);
+			}
+		}
+	}
+
+	return 0XFF;//Indicate No key pressed
+}
+
+/* stop Useful to get numbers from any buttons. Ascii conversion. */
+
+
+	/* START BITWISE FLAGS */
+	Bitflags are a method of storing multiple values, which are not mutucally exclusive, in one variable. You've probably seen them before. Each flag is a bit position which can be set on or off. You then have a bunch of bitmasks #defined for each bit position so you can easily manipulate it:
+
+ 
+#define LOG_ERRORS            1  // 2^0, bit 0
+#define LOG_WARNINGS          2  // 2^1, bit 1
+#define LOG_NOTICES           4  // 2^2, bit 2
+#define LOG_INCOMING          8  // 2^3, bit 3
+#define LOG_OUTGOING         16  // 2^4, bit 4
+#define LOG_LOOPBACK         32  // and so on...
+
+// Only 6 flags/bits used, so a char is fine
+unsigned char flags;
+
+// initialising the flags
+// note that assignming a value will clobber any other flags, so you
+// should generally only use the = operator when initialising vars.
+flags = LOG_ERRORS;
+// sets to 1 i.e. bit 0
+
+//initialising to multiple values with OR (|)
+flags = LOG_ERRORS | LOG_WARNINGS | LOG_INCOMING;
+// sets to 1 + 2 + 8 i.e. bits 0, 1 and 3
+
+// setting one flag on, leaving the rest untouched
+// OR bitmask with the current value
+flags |= LOG_INCOMING;
+
+// testing for a flag
+// AND with the bitmask before testing with ==
+if ((flags & LOG_WARNINGS) == LOG_WARNINGS)
+   ...
+
+// testing for multiple flags
+// as above, OR the bitmasks
+if ((flags & (LOG_INCOMING | LOG_OUTGOING))
+         == (LOG_INCOMING | LOG_OUTGOING))
+   ...
+
+// removing a flag, leaving the rest untouched
+// AND with the inverse (NOT) of the bitmask
+flags &= ~LOG_OUTGOING;
+
+// toggling a flag, leaving the rest untouched
+flags ^= LOG_LOOPBACK;
+
+ 
+
+WARNING: DO NOT use the equality operator (i.e. bitflags == bitmask) for testing if a flag is set - that expression will only be true if that flag is set and all others are unset. To test for a single flag you need to use & and == :
+
+ 
+if (flags == LOG_WARNINGS) //DON'T DO THIS
+   ...
+if ((flags & LOG_WARNINGS) == LOG_WARNINGS) // The right way
+   ...
+if ((flags & (LOG_INCOMING | LOG_OUTGOING)) // Test for multiple flags set
+         == (LOG_INCOMING | LOG_OUTGOING))
+   ...
+ 
+	/* END BITWISE FLAGS */
+ ***********************************************
+ ***********************************************
+ ***********************************************
+ ***********************************************
+	/*		START OLD ISR CODE		*/
+	Voltage  = (float)ADCH * (float)VPERADC; //Voltage in to ADC
+	if(Sektion.SektionUsed[Sektion.ADCchannel])
+	{
+
+		
+		testSektion[Sektion.ADCchannel].uID			= Sektion.ADCchannel;   /* EFFECIENCY TEST */
+				
+		if(Voltage > 4) //DRIFT
+		  {
+				Sektion.OK			|= 1 << Sektion.ADCchannel;
+				Sektion.Alarm		&= ~1 << Sektion.ADCchannel;
+				Sektion.Sabotage	&= ~1 << Sektion.ADCchannel;
+				
+				countOK++;
+				testSektion[Sektion.ADCchannel].OK			= 1;   /* EFFECIENCY TEST */
+				testSektion[Sektion.ADCchannel].Alarm		= 0;   /* EFFECIENCY TEST */
+				testSektion[Sektion.ADCchannel].Sabotage	= 0 << Sektion.ADCchannel;   /* EFFECIENCY TEST */
+		  }		
+		else if(Voltage<3) //Sabotage
+		  {
+				Sektion.Sabotage	|= 1 << Sektion.ADCchannel;
+				Sektion.OK			&= ~1 << Sektion.ADCchannel;
+				Sektion.Alarm		&= ~1 << Sektion.ADCchannel;
+				
+				countSabotage++;
+				countIssues++;
+				testSektion[Sektion.ADCchannel].Sabotage	= 1;
+				testSektion[Sektion.ADCchannel].OK			= 0;
+				testSektion[Sektion.ADCchannel].Alarm		= 0;
+			}
+			else //Alarm
+			{
+				testSektion[Sektion.ADCchannel].Alarm		|= 1 << Sektion.ADCchannel;
+				testSektion[Sektion.ADCchannel].OK			&= ~1 << Sektion.ADCchannel;
+				testSektion[Sektion.ADCchannel].Sabotage	&= ~1 << Sektion.ADCchannel;
+				
+				countAlarms++;
+				countIssues++;
+				testSektion[Sektion.ADCchannel].Alarm		= 1;
+				testSektion[Sektion.ADCchannel].OK			= 0;
+				testSektion[Sektion.ADCchannel].Sabotage	= 0;
+		  }		
+		  
+	}		
+	
+	if(Sektion.ADCchannel < 7)
+	{
+		Sektion.ADCchannel ++;
+	
+	}	
+	else
+	{
+		totOK = countOK;
+		totSabotage = countSabotage;
+		totAlarms = countAlarms;
+		Sektion.ADCchannel = 0;
+		countAlarms=0;
+		countSabotage=0;
+		countOK=0;
+		countIssues=0;
+	}		
+
+	/*		END OLD ISR CODE		*/
+ ***********************************************
+ ***********************************************
+ ***********************************************
+ ***********************************************
+	/*		START OLD OnceEveryFullLoop()	*/
+
+void OnceEveryFullLoop()
+{
+	_delay_ms(10);
+	
+	SetLedStatus();	//Update indicator leds according to current status
+
+	if(state == OFFSTATE)
+	{
+		sprintf(StatusText, "Alarm Deactivated"); 
+		sprintf(AlarmSabText, ""); 
+		UpdateDisplay(StatusText, AlarmSabText, 1);
+		
+		CheckKeyPadState();
+	
+	}
+	else
+	{		
+
+		#ifdef DEBUG
+			sprintf(StatusText, "sOK:%d sAlarm:%d Sab:%d", totOK, totAlarms, totSabotage);
+		
+		#else
+			sprintf(StatusText, "Scanning sektions: 1-8");
+		#endif
+
+		bool change=false;
+	
+		for(int i=0; i < 8; i++)
+		{
+			if(countOK < 8)
+			{
+				change=true;
+				if(testSektion[i].Alarm == 1) //Alarm but no sabotage
+				{		
+					sprintf(AlarmSabText, "Alarm in section:%i", i+1); //From data id to user id, 1-8 instead of 0-7
+					UpdateDisplay(StatusText, AlarmSabText, 1);
+					_delay_ms(1000);
+					state = ALARMSTATE;
+				
+					/*START ALARM FUNCTIONS, SIRENS, SMS ETC */
+		
+				} else if(testSektion[i].Sabotage == 1) //Sabotage but no alarm
+				{
+				
+					sprintf(AlarmSabText, "Sabotage, section: %i", i+1);
+					UpdateDisplay(StatusText, AlarmSabText, 1);
+					_delay_ms(1000);
+					state = SABSTATE;
+				}
+			}		
+			else if(countOK==8)
+			{
+					sprintf(AlarmSabText, "OK."); 
+					state = OKSTATE;
+			}
+			
+			
+			
+			UpdateDisplay(StatusText, AlarmSabText, 0);
+	
+			CheckKeyPadState();
+
+		
+			strcpy(oldStatusText, StatusText);
+			strcpy(oldAlarmSabText, AlarmSabText);
+			if(state==OFFSTATE)
+				break;
+		}	
+		
+				
+	}			
+	/*			
+	countAlarms=0;
+	countSabotage=0;
+	countOK=0;
+	countIssues=0;
+	*/
+}
+
+	/*		END OLD OnceEveryFullLoop()	*/

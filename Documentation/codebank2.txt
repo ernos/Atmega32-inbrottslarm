@@ -1,0 +1,139 @@
+/*
+ * codebank2.txt
+ *
+ * Created: 2012-12-24 01:56:57
+ *  Author: Max
+ */ 
+
+ printffunction:
+ 	int iArguments;
+	va_list argsLine, argsLine1, argsLine2;
+	char bufLine[45], bufLine1[21], bufLine2[21];
+	char newLineChar[2];
+	int iLine = 0;
+	int cArgs1 = 0;
+	int cArgs2 = 0;
+	
+enum mytypes {LONG, INT, FLOAT, DOUBLE };
+int test = 0;
+
+//void DoLineOne(const char *fmt, int line=0, ...);
+/*
+void DoLineOne(const char *fmt, int line, ...)
+{
+	va_list args;
+	if(line==1)
+	{
+		va_start(args, fmt);
+		vsprintf(Brain.lcdRow1, fmt, args);
+		va_end(args);
+	}
+	else if(line==2)
+	{
+		va_start(args, fmt);
+		vsprintf(Brain.lcdRow2, fmt, args);
+		va_end(args);
+	}
+}
+*/
+#define MAXNUMBERLENGTH 10
+char valueBuff[MAXNUMBERLENGTH];
+		char argType = 0;
+		int argCount=0;
+		int bufSize = 0;
+		int itoaSize = 0;
+		bool bline1Done=false;
+		char *aArgType[20];
+		int argLocation[10];
+		char tmpBuf2[21];
+void PrintToDisplay(const char *fmt, ...)
+{
+
+	char * pch;
+	char * pch1;
+	char * pch2;
+	int sprintfRet = -1;
+	
+	strcpy(bufLine1, fmt);
+	
+	for(int f = 0; f < 20; f++)
+	{
+		if(bufLine1[f]==0x25)
+		{
+			cArgs1++;
+			//memcpy(tmpBuf2, bufLine1+f, (size_t)strlen(bufLine1+f));
+			//memcpy(aArgType[argCount], bufLine1+f, (size_t)20);
+			argLocation[argCount] = f;
+			argCount++;
+		}
+	}
+	argCount = 0;
+	if(cArgs1 > 0 || cArgs2 > 0)
+	{
+
+		
+		va_start(argsLine, fmt);
+		strcpy(tmpBuf2, bufLine1);
+		for(int i=0; i < 20; i ++)
+		{
+
+			if(argCount > cArgs1)
+			{
+				bline1Done == true;
+			}
+
+			//strcpy(tmpBuf2, bufLine1);
+			if(tmpBuf2[i] == 0x25)
+			{
+				int tmpDecimal = 0;
+				valueBuff[0] = '\0';
+				tmpDecimal = (int) va_arg(argsLine, int);
+				itoa(tmpDecimal, valueBuff, 10);
+				bufSize = strlen(bufLine1);
+				itoaSize = strlen(valueBuff);
+				if(itoaSize>0 && (bufSize+itoaSize < 21))
+				
+				{
+
+					memmove (tmpBuf2+i+itoaSize, tmpBuf2+i+2,(size_t)20-bufSize+itoaSize); //-1 for the %
+					bufLine1[bufSize+itoaSize-2] = '\0';
+					for(int d=0; d<itoaSize; d++)
+					{
+						tmpBuf2[i+d]=valueBuff[d];
+					}
+					argCount++;
+					continue;
+					
+				}
+				
+				
+			}
+			else
+			continue;
+			
+			va_end(argsLine);
+		}	
+	}	
+	strcpy(newLineChar, "\n");
+	pch = strtok (tmpBuf2,newLineChar);
+	test = strlen(pch);
+	if(test > 0)
+		strcpy(bufLine1, pch);
+		
+	while(pch != NULL) //Split the string into two lines, Brain.lcdRow1 & 2
+	{ 
+		pch = NULL;
+		pch = strtok(NULL, newLineChar);
+		test = strlen(pch);
+		if(test > 0)
+		{
+			strcpy(bufLine2, pch);
+			break;
+		}		
+		if(cTimer.bPrintTimeout) 
+			break;//safety feature
+	
+	}	
+
+	UpdateDisplay(bufLine1,bufLine2, printDELAY0);
+}
