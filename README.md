@@ -1,6 +1,6 @@
 **CheapSec — AVR ATmega32 Burglar Alarm**
 
-- **Purpose:** Simple burglar-alarm firmware for an ATmega32-based device. Provides keypad input, LCD status display, serial (USART) comms, and a simple menu system.
+- **Purpose:** Simple burglar-alarm firmware for an ATmega32-based device. Provides keypad input, LCD status display, serial (USART) comms, and a simple menu system. All alarm sections are doubly-balanced with resistors (like commercial burglar alarms) to enable detecting of these states with only 2 wires: NORMAL, ALARM, SABOTAGE (Wire cut). Does this by using ADC channels and measuring the resistance. This enables users to connect any kind of standard alarm sensor to the system, IR detectors, Simple magnet contacts for windows etc, feedback from door locks, glass break detectors (Aucustic or standard which you glue to the window) etc etc.
 - **MCU:** ATmega32 (AVR)
 
 Features
