@@ -1,6 +1,5 @@
 **CheapSec — AVR ATmega32 Burglar Alarm**
 
-Overview generated with copilot after instructing it to analyze source files. Original documentation which was written at the time this project was created (2010?) Will be availible in `documentations/` folder.
 - **Purpose:** Simple burglar-alarm firmware for an ATmega32-based device. Provides keypad input, LCD status display, serial (USART) comms, and a simple menu system.
 - **MCU:** ATmega32 (AVR)
 
